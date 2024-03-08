@@ -2,12 +2,13 @@ class Solution {
     public int maxFrequencyElements(int[] nums) 
     {
         //using HashMap List
-        return usingHashMapList(nums);
+        // return usingHashMapList(nums);
 
         //using HashMap Array
-        // return usingHashMapArray(nums);
+        return usingHashMapArray(nums);
 
     }
+    /*
     public int usingHashMapList(int[] nums)
     {
         HashMap<Integer,Integer> hashMap=new HashMap<>();
@@ -35,7 +36,8 @@ class Solution {
         }
         return max*count;
     }
-    /*
+    */
+    
     public int usingHashMapArray(int[] nums)
     {
         int max=0,count=0;
@@ -65,5 +67,5 @@ class Solution {
         }
         return count*max;
 
-    }*/
+    }
 }
