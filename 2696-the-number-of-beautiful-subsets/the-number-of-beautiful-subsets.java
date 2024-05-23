@@ -1,27 +1,27 @@
 class Solution {
     public int beautifulSubsets(int[] nums, int k) {
-        Map<Integer, Integer> freqMap = new HashMap<>();
-        Arrays.sort(nums);
-        return countBeautifulSubsets(nums, k, freqMap, 0) - 1;
-    }
+        
+        Map<Integer, Integer> m = new HashMap<>();
 
-    private int countBeautifulSubsets(int[] nums, int difference, Map<Integer, Integer> freqMap, int i) {
-        if (i == nums.length) {
-            return 1;
-        }
-        int totalCount = countBeautifulSubsets(nums, difference, freqMap, i + 1);
+        for (int num : nums) m.put(num, m.getOrDefault(num, 0) + 1);
 
-        if (!freqMap.containsKey(nums[i] - difference)) {
-            freqMap.put(nums[i], freqMap.getOrDefault(nums[i], 0) +
-                    1); 
-            totalCount += countBeautifulSubsets(nums, difference, freqMap, i + 1);
-            freqMap.put(nums[i], freqMap.get(nums[i]) -
-                    1); 
-            if (freqMap.get(nums[i]) == 0) {
-                freqMap.remove(nums[i]);
+        int res = 1, prev = 0, prevPrev = 0;
+
+        for (Map.Entry<Integer, Integer> e : m.entrySet()) {
+            int cur = e.getKey();
+
+            if (m.containsKey(cur - k)) continue;
+            
+            prev = 0;
+
+            while (m.containsKey(cur)) {
+                prevPrev = prev;
+                prev = ((1 << m.get(cur)) - 1) * res;
+                res += prevPrev;
+                cur += k;
             }
+            res += prev;
         }
-
-        return totalCount;
+        return res - 1;
     }
 }
