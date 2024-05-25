@@ -1,29 +1,26 @@
 class Solution {
     public List<String> wordBreak(String s, List<String> wordDict) {
-        HashMap<Integer, List<String>> hm = new HashMap<>();
-        HashSet<String> hs = new HashSet<>(wordDict);
-        return wordBreakHelper(s, 0, hs, hm);
+        Set<String> wordSet = new HashSet<>(wordDict);
+        List<String> results = new ArrayList<>();
+        backtrack(s, wordSet, new StringBuilder(), results, 0);
+        return results;
     }
 
-    private List<String> wordBreakHelper(String s, int start, HashSet<String> dict, HashMap<Integer, List<String>> hm) {
-        if (hm.containsKey(start))
-            return hm.get(start);
-
-        List<String> validSubstr = new ArrayList<>();
-
-        if (start == s.length())
-            validSubstr.add("");
-        for (int end = start + 1; end <= s.length(); end++) {
-            String prefix = s.substring(start, end);
-            if (dict.contains(prefix)) {
-                List<String> suffixes = wordBreakHelper(s, end, dict, hm);
-                for (String suffix : suffixes) {
-                    validSubstr.add(prefix + (suffix.equals("") ? "" : " ") + suffix);
-                }
-            }
+    private static void backtrack(String s, Set<String> wordSet, StringBuilder currentSentence, List<String> results,
+            int startIndex) {
+        if (startIndex == s.length()) {
+            results.add(currentSentence.toString().trim());
+            return;
         }
 
-        hm.put(start, validSubstr);
-        return validSubstr;
+        for (int endIndex = startIndex + 1; endIndex <= s.length(); endIndex++) {
+            String word = s.substring(startIndex, endIndex);
+            if (wordSet.contains(word)) {
+                int currentLength = currentSentence.length();
+                currentSentence.append(word).append(" ");
+                backtrack(s, wordSet, currentSentence, results, endIndex);
+                currentSentence.setLength(currentLength);
+            }
+        }
     }
 }
