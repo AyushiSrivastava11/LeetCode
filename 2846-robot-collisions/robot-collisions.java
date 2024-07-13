@@ -1,52 +1,54 @@
+class Robot {
+  public int index;
+  public int position;
+  public int health;
+  public char direction;
+  public Robot(int index, int position, int health, char direction) {
+    this.index = index;
+    this.position = position;
+    this.health = health;
+    this.direction = direction;
+  }
+}
+
 class Solution {
-    public List<Integer> survivedRobotsHealths(int[] positions, int[] healths, String directions) {
-        int n = positions.length;
-        List<int[]> robots = new ArrayList<>();
+  public List<Integer> survivedRobotsHealths(int[] positions, int[] healths, String directions) {
+    List<Integer> ans = new ArrayList<>();
+    Robot[] robots = new Robot[positions.length];
+    List<Robot> stack = new ArrayList<>(); // running robots
 
-        for (int i = 0; i < n; ++i) {
-            robots.add(new int[]{positions[i], healths[i], directions.charAt(i), i});
+    for (int i = 0; i < positions.length; ++i)
+      robots[i] = new Robot(i, positions[i], healths[i], directions.charAt(i));
+
+    Arrays.sort(robots, (a, b) -> a.position - b.position);
+
+    for (Robot robot : robots) {
+      if (robot.direction == 'R') {
+        stack.add(robot);
+        continue;
+      }
+      // Collide with robots going right if any.
+      while (!stack.isEmpty() && stack.get(stack.size() - 1).direction == 'R' && robot.health > 0) {
+        if (stack.get(stack.size() - 1).health == robot.health) {
+          stack.remove(stack.size() - 1);
+          robot.health = 0;
+        } else if (stack.get(stack.size() - 1).health < robot.health) {
+          stack.remove(stack.size() - 1);
+          robot.health -= 1;
+        } else { // stack[-1].health > robot.health
+          stack.get(stack.size() - 1).health -= 1;
+          robot.health = 0;
         }
-
-        Collections.sort(robots, (a, b) -> Integer.compare(a[0], b[0]));
-
-        Stack<int[]> stack = new Stack<>();
-
-        for (int[] robot : robots) {
-            if (robot[2] == 'R' || stack.isEmpty() || stack.peek()[2] == 'L') {
-                stack.push(robot);
-                continue;
-            }
-
-            if (robot[2] == 'L') {
-                boolean add = true;
-                while (!stack.isEmpty() && stack.peek()[2] == 'R' && add) {
-                    int last_health = stack.peek()[1];
-                    if (robot[1] > last_health) {
-                        stack.pop();
-                        robot[1] -= 1;
-                    } else if (robot[1] < last_health) {
-                        stack.peek()[1] -= 1;
-                        add = false;
-                    } else {
-                        stack.pop();
-                        add = false;
-                    }
-                }
-
-                if (add) {
-                    stack.push(robot);
-                }
-            }
-        }
-
-        List<int[]> resultList = new ArrayList<>(stack);
-        resultList.sort(Comparator.comparingInt(a -> a[3]));
-
-        List<Integer> result = new ArrayList<>();
-        for (int[] robot : resultList) {
-            result.add(robot[1]);
-        }
-
-        return result;
+      }
+      if (robot.health > 0)
+        stack.add(robot);
     }
+
+    stack.sort((a, b) -> a.index - b.index);
+
+    for (Robot robot : stack)
+      ans.add(robot.health);
+
+    return ans;
+  }
 }
