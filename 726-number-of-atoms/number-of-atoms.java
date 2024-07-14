@@ -1,70 +1,44 @@
+
 class Solution {
     public String countOfAtoms(String formula) {
-        int n = formula.length();
-        Map<String, Integer> result_counter = new HashMap<>();
-        Deque<Map<String, Integer>> parenthesis_stack = new ArrayDeque<>();
-        int cur_ind = 0;
-
-        while (cur_ind < n) {
-            char cur_char = formula.charAt(cur_ind);
-
-            if (cur_char == '(') {
-                cur_ind++;
-                parenthesis_stack.push(new HashMap<>());
-                continue;
-            }
-
-            if (cur_char == ')') {
-                StringBuilder mult_str = new StringBuilder();
-                cur_ind++;
-
-                while (cur_ind < n && Character.isDigit(formula.charAt(cur_ind))) {
-                    mult_str.append(formula.charAt(cur_ind));
-                    cur_ind++;
+        Map<String, Integer> map = new HashMap<>();
+        int[] stack = new int[1000];
+        int top = 0, multiplier = 1, freq = 0;
+        char[] c = formula.toCharArray();
+        for(int i = c.length - 1; i >= 0; i--) {
+            if(c[i] >= 'a' && c[i] <= 'z') {
+                int end = i--;
+                while(i >= 0 && c[i] >= 'a' && c[i] <= 'z') i--;
+                String key = new String(c, i, end - i + 1);
+                map.put(key, map.getOrDefault(key, 0) + Math.max(freq, 1) * multiplier);
+                freq = 0;
+            } else if(c[i] >= 'A' && c[i] <= 'Z') {
+                String key = new String(c, i, 1);
+                map.put(key, map.getOrDefault(key, 0) + Math.max(freq, 1) * multiplier);
+                freq = 0;
+            } else if(c[i] >= '0' && c[i] <= '9') {
+                freq = c[i] - '0';
+                int p = 10;
+                while(i-1 >= 0 && c[i-1] >= '0' && c[i-1] <= '9') {
+                    freq += p * (c[--i] - '0');
+                    p *= 10;
                 }
-
-                int mult = mult_str.length() == 0 ? 1 : Integer.parseInt(mult_str.toString());
-                Map<String, Integer> last_counter = parenthesis_stack.pop();
-                Map<String, Integer> target = parenthesis_stack.isEmpty() ? result_counter : parenthesis_stack.peek();
-                
-                for (Map.Entry<String, Integer> entry : last_counter.entrySet()) {
-                    target.put(entry.getKey(), target.getOrDefault(entry.getKey(), 0) + entry.getValue() * mult);
-                }
-                continue;
+            } else if(c[i] == ')') {
+                stack[top++] = multiplier;
+                multiplier *= Math.max(freq, 1);
+                freq = 0;
+            } else {
+                multiplier = stack[--top];
             }
-
-            StringBuilder cur_elem = new StringBuilder();
-            StringBuilder cur_counter_str = new StringBuilder();
-            Map<String, Integer> target = parenthesis_stack.isEmpty() ? result_counter : parenthesis_stack.peek();
-
-            while (cur_ind < n && formula.charAt(cur_ind) != '(' && formula.charAt(cur_ind) != ')') {
-                if (Character.isAlphabetic(formula.charAt(cur_ind))) {
-                    if (Character.isUpperCase(formula.charAt(cur_ind)) && cur_elem.length() > 0) {
-                        target.put(cur_elem.toString(), target.getOrDefault(cur_elem.toString(), 0) + (cur_counter_str.length() == 0 ? 1 : Integer.parseInt(cur_counter_str.toString())));
-                        cur_elem = new StringBuilder();
-                        cur_counter_str = new StringBuilder();
-                    }
-                    cur_elem.append(formula.charAt(cur_ind));
-                } else {
-                    cur_counter_str.append(formula.charAt(cur_ind));
-                }
-                cur_ind++;
-            }
-
-            target.put(cur_elem.toString(), target.getOrDefault(cur_elem.toString(), 0) + (cur_counter_str.length() == 0 ? 1 : Integer.parseInt(cur_counter_str.toString())));
         }
-
-        List<String> parts = new ArrayList<>();
-        for (Map.Entry<String, Integer> entry : result_counter.entrySet()) {
-            parts.add(entry.getKey() + (entry.getValue() == 1 ? "" : entry.getValue()));
+        List<String> keys = new ArrayList<>(map.keySet());
+        Collections.sort(keys);
+        StringBuilder sb = new StringBuilder();
+        for(String key: keys) {
+            sb.append(key);
+            int f = map.get(key);
+            if(f > 1) sb.append(f);
         }
-        Collections.sort(parts);
-
-        StringBuilder result = new StringBuilder();
-        for (String part : parts) {
-            result.append(part);
-        }
-
-        return result.toString();
+        return sb.toString();
     }
 }
