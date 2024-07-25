@@ -1,19 +1,52 @@
+import java.util.Random;
+
 class Solution {
     public int[] sortArray(int[] nums) {
-        int[] counting = new int[2 * 50000 + 1];
-        for (int num : nums) {
-            // we add 5 * 10^4 because for smallest possible element -5 * 10^4 index must be 0
-            counting[num + 50000]++;
+        quickSort(nums, 0, nums.length - 1);
+        return nums;
+    }
+
+    public void quickSort(int[] arr, int low, int high) {
+        if (low < high) {
+            int pivot = findPivot(arr, low, high);
+            quickSort(arr, low, pivot - 1);
+            quickSort(arr, pivot + 1, high);
         }
-        int writeInd = 0;
-        for (int numberInd = 0; numberInd < counting.length; numberInd++) {
-            int freq = counting[numberInd];
-            while (freq != 0) {
-                nums[writeInd] = numberInd - 50000;
-                writeInd++;
-                freq--;
+    }
+
+    public int findPivot(int[] arr, int low, int high) {
+        // Randomized pivot selection to avoid worst-case scenarios
+        int pivotIndex = low + (new Random()).nextInt(high - low + 1);
+        swap(arr, pivotIndex, low); // Move pivot to the start
+        int pivot = arr[low];
+
+        int left = low + 1;
+        int right = high;
+
+        while (left <= right) {
+            // Find the first element greater than the pivot
+            while (left <= right && arr[left] <= pivot) {
+                left++;
+            }
+            // Find the first element smaller than or equal to the pivot
+            while (left <= right && arr[right] > pivot) {
+                right--;
+            }
+            // Swap elements if left is still left of right
+            if (left < right) {
+                swap(arr, left, right);
+                left++;
+                right--;
             }
         }
-        return nums;
+        // Place the pivot in its correct position
+        swap(arr, low, right);
+        return right;
+    }
+
+    private void swap(int[] arr, int i, int j) {
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
     }
 }
