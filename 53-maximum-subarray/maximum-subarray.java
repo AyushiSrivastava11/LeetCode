@@ -1,14 +1,11 @@
 class Solution {
     public int maxSubArray(int[] nums) {
-        
-        //Kadane's Algorithm
-        int maximum=Integer.MIN_VALUE,sum=0;
-        for(int num : nums)
-        {
-            sum+=num;
-            maximum=Math.max(maximum,sum);
-            sum=(sum<0)?0:sum;
+        int sum = 0, max = Integer.MIN_VALUE;
+        for (int num : nums) {
+            sum += num;
+            max = Math.max(sum,max);
+            sum = (sum<0)?0:sum;
         }
-        return maximum;
+        return max;
     }
 }
