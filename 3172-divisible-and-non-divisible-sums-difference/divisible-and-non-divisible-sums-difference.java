@@ -8,14 +8,12 @@ class Solution {
             {
                 num1+=i;
             }
-        }
-         for(int i=1;i<=n;i++)
-        {
-            if(i%m == 0)
+            else if(i%m == 0)
             {
                 num2+=i;
             }
         }
+         
         return num1-num2;
     }
 }
